@@ -169,7 +169,7 @@ class OLT_Subpages_Navigation_Widget extends WP_Widget {
 						$walker->set_expand(true);
 					}
 		    		
-		    		$depth = ($nested)? '0' : '-1';
+		    		$depth = ($nested)? '3' : '-1';
 					
 					
 		    		
@@ -492,6 +492,7 @@ class CLFSubpagesNavigationPageList extends Walker {
     var $menu;
 	var $parentID, $main_parentID;
 	var $level = 1;
+	var $prev_level = 1;
 	var $exclusive = false;
 	var $collapsible = false;
 	var $expand = false;
@@ -507,13 +508,13 @@ class CLFSubpagesNavigationPageList extends Walker {
     }
     
     function start_lvl(&$output, $depth, $args) {
-    	$opened = "";
+    	$in = "";
         $indent  = str_repeat("    ", $depth+1);
         // Force open on parameter collapsible
-        if ($this->collapsible)
-			$opened = " in";
+        if (!$this->collapsible)
+			$in = " in";
 		
-        $output .= $indent."<div id='accordion-".$this->parentID."' class='accordion-body collapse".$opened."'>\n";
+        $output .= $indent."<div id='accordion-".$this->parentID."' class='accordion-body collapse".$in."'>\n";
 		$output .= $indent."<div class='accordion-inner'>\n";
     }
     
@@ -530,20 +531,26 @@ class CLFSubpagesNavigationPageList extends Walker {
         	$title = esc_html($page->title);
         	$link = $page->url;
 			$current_id = $page->object_id;
+			
         else:
         	$title = esc_html($page->post_title);
         	$link  = get_permalink($page->ID);
 			$current_id = $page->ID;
         endif;
+		
         
         $indent  = str_repeat("    ", $depth)."  ";
-		if ($has_children) {
-			$output .= $indent."<!-- Parent $current_id -->\n";
-			
+		if ($has_children && $depth < 2) {
+			if ($page->post_parent == 0)
+				$accordion_group = $this->main_parentID;
+			else {
+				$accordion_group = $page->post_parent;
+			}
 			// Set parent class, require for exclusivity an
 			if ($this->level > 1) {
 				if ($this->parentID == $page->post_parent) {
-					$output .= $indent."<div class='accordion' id='parent-".$current_id."'>";
+					$output .= $indent."<!-- New Accordion ".$accordion_group." -->\n";
+					$output .= $indent."<div class='accordion' id='parent-".$accordion_group."'>";
 					$this->parentID = $current_id;
 				}
 			}
@@ -551,6 +558,7 @@ class CLFSubpagesNavigationPageList extends Walker {
 				// Update parentID to reflect main parent
 				$this->parentID = $this->main_parentID;	
 			}
+			$output .= $indent."<!-- Parent $current_id -->\n";
 		 	$output .= $indent."<div class='accordion-group'>\n";
 			$this->level++ ;
 			
@@ -558,7 +566,7 @@ class CLFSubpagesNavigationPageList extends Walker {
 			
 			// Set parameter for exclusivity option
 			if ($this->exclusive)
-				$exclusive_parameter = "data-parent='#parent-".$this->parentID."' ";
+				$exclusive_parameter = "data-parent='#parent-".$accordion_group."' ";
 			else
 				$exclusive_parameter = "";
 			$output .= $indent. "<a class='accordion-toggle' data-toggle='collapse' ".$exclusive_parameter."href='#accordion-".$current_id."'><div class='ubc7-arrow down-arrow'></div></a>\n";
@@ -607,12 +615,17 @@ class CLFSubpagesNavigationPageList extends Walker {
     function end_el(&$output, $page, $depth, $args) {
         $indent  = str_repeat("    ", $depth)."  ";
         //$output .= $indent."</li>\n";
-		if ($args['has_children']) {
+        // Max depth of Three Levels
+		if ($args['has_children'] && $depth < 2) {
 			$output .= $indent."</div>\n";
+			
 			$this->level--;
-			if ($this->level > 1 && $this->parentID == $page->post_parent) {
-					$output .= $indent."</div>";
+
+			if ($this->prev_level > $this->level) {
+				$output .= $indent."</div>";
+				$output .= $indent. "<!-- close of accordion-group -->";
 			}
+			$this->prev_level = $this->level;
 		}
     }
 	
