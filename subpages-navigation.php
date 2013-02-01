@@ -22,6 +22,11 @@ add_action( 'widgets_init', 'olt_subpages_navigation_load_widgets' );
 //if(SUBPAGE_NAVIGATION_STYLE)
 add_action( 'init', 'init_subpages_navigation_plugin' );
 
+
+define( 'SUBPAGES_NAVIGATION_DIR_PATH', plugin_dir_path( __FILE__ ) );
+define( 'SUBPAGES_NAVIGATION_BASENAME', plugin_basename( __FILE__ ) );
+define( 'SUBPAGES_NAVIGATION_BASE_FILE', __FILE__ );
+define( 'SUBPAGES_NAVIGATION_DIR_URL', plugins_url( '', SUBPAGES_NAVIGATION_BASENAME ) );
 /**
  * Register our widget.
  * 'olt_subpages_navigation_Widget' is the widget class used below.
@@ -372,7 +377,7 @@ function subpages_navigation_shortcode($atts) {
 				
 		// UBC CLF style side navigation
 		if ( $theme_accordion_support == 'twitter-bootstrap' ) {
-			$walker = new CLFSubpagesNavigationPageList($using_menu );
+			$walker = new CLFSubpagesNavigationPageList( $using_menu );
 			
 			$classes = 'accordion sidenav simple subpages-navi subpages-navi-widget';
 				
@@ -428,7 +433,7 @@ function init_subpages_navigation_plugin()
  	
 	 if (!is_admin()) {
 	 	if(SUBPAGE_NAVIGATION_SCRIPT)
-			wp_enqueue_script('subpages-navigation', plugins_url('/subpage-navigation/subpages-navigation.js'), array('jquery'));
+			wp_enqueue_script('subpages-navigation', SUBPAGES_NAVIGATION_DIR_URL.'/subpages-navigation.js', array('jquery'));
 			
 		if(SUBPAGE_NAVIGATION_STYLE){
 			if (file_exists(STYLESHEETPATH."/subpages-navigation.css") )
@@ -436,7 +441,7 @@ function init_subpages_navigation_plugin()
 				wp_enqueue_style('subpages-navigation', get_bloginfo('stylesheet_directory').'/subpages-navigation.css');
 		
 			}else{
-				wp_enqueue_style('subpages-navigation', plugins_url('/subpage-navigation/subpage-navigation.css'));
+				wp_enqueue_style('subpages-navigation', SUBPAGES_NAVIGATION_DIR_URL.'/subpage-navigation.css');
 			}
 		}
 	}
@@ -447,7 +452,7 @@ function init_subpages_navigation_plugin()
 
 add_action("admin_print_scripts-widgets.php","subpages_navigation_plugin_admin");
 function subpages_navigation_plugin_admin(){
-	wp_enqueue_script('subpages-navigation-admin', plugins_url('/subpage-navigation/subpages-navigation-admin.js'),array('jquery'));
+	wp_enqueue_script('subpages-navigation-admin', SUBPAGES_NAVIGATION_DIR_URL.'/subpages-navigation-admin.js' ,array('jquery'));
 
 }
 
@@ -467,6 +472,7 @@ class SubpagesNavigationPageList extends Walker {
     }
     
     function start_lvl(&$output, $depth, $args) {
+   
         $indent  = str_repeat("    ", $depth+1);
         $output .= $indent."<ul class='children'>\n";
     }
@@ -513,6 +519,7 @@ class SubpagesNavigationPageList extends Walker {
 }
 
 class CLFSubpagesNavigationPageList extends Walker {
+	
 	var $tree_type = 'page';
     //var $db_fields = array ('parent' => 'post_parent', 'id' => 'ID');
     var $db_fields = array ('parent' => 'post_parent', 'id' => 'ID');
@@ -524,8 +531,9 @@ class CLFSubpagesNavigationPageList extends Walker {
 	var $collapsible = false;
 	var $expand = false;
     
-    function __construct($menu = false, $parentID){
-    	
+    function __construct($menu = false, $parentID = null){
+    	global $post;
+    	$parentID = ( is_null($parentID) ? $post->ID : $parentID);
     	if($menu):
     		//If we're using a menu we need to retrieve slightly different info from the object we're traversing.
     		$this->menu=true;
@@ -536,6 +544,7 @@ class CLFSubpagesNavigationPageList extends Walker {
     
     function start_lvl(&$output, $depth, $args) {
     	$in = "";
+    	
         $indent  = str_repeat("    ", $depth+1);
         // Force open on parameter collapsible
         if (!$this->collapsible)
@@ -552,6 +561,7 @@ class CLFSubpagesNavigationPageList extends Walker {
     
     function start_el(&$output, $page, $depth, $args) {
     	$end_div = false;
+    	
         extract($args);
 		
         if($this->menu):
