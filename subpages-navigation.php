@@ -176,7 +176,7 @@ class OLT_Subpages_Navigation_Widget extends WP_Widget {
 		    		?>
 		    		
 		            <div class="<?php echo $classes; ?>" id="parent-<?php echo $post->ID; ?>">
-		                <?php echo $walker->walk($pages, $depth, array('current_level' => $post->ID)); ?>
+		                <?php echo $walker->walk($pages, $depth, array('current_level' => $post->ID, 'shorcode' => false)); ?>
 		            </div>
 		            <?php
 				}
@@ -368,19 +368,48 @@ function subpages_navigation_shortcode($atts) {
 	    endif;
 	   
 	    // Prepare the walker
-        $walker = new SubpagesNavigationPageList($using_menu);
-        
-        $output  = '<ul class="subpages-navi subpages-navi-shortcode';
-        if($collapsible == 'true' || true)
-            $output .= ' subpages-navi-collapsible';
-        if($exclusive == 'true')
-            $output .= ' subpages-navi-exclusive';
-        if($expand == 'true')
-            $output .= ' subpages-navi-auto-expand';
-        $output .= "\">\n";
-        $output .= $walker->walk($pages, (int) $depth, array('current_level' => $post->ID));
-        $output .= "</ul>\n";
-        
+	    $theme_accordion_support = reset(get_theme_support('accordions'));
+				
+		// UBC CLF style side navigation
+		if ( $theme_accordion_support == 'twitter-bootstrap' ) {
+			$walker = new CLFSubpagesNavigationPageList($using_menu );
+			
+			$classes = 'accordion sidenav simple subpages-navi subpages-navi-widget';
+				
+    		if($exclusive) {  
+    			$classes .= ' subpages-navi-exclusive';
+				$walker->set_exclusive(true);
+			}
+    		
+    		if($collapsible) {
+    			$classes .= ' subpages-navi-collapsible';
+				$walker->set_collapsible(true);
+			}
+    		
+    		if($expand) {
+    			$classes .= ' subpages-navi-auto-expand';
+				$walker->set_expand(true);
+			}
+    		
+    		$depth = ($nested)? '3' : '-1';
+			
+			$output = '<div class="'.$classes.'" id="scparent-'.$post->ID.'">';
+            $output .= $walker->walk($pages, $depth, array('current_level' => $post->ID, 'shortcode' => true));
+            $output .= "</div>\n";
+		} else { 
+	        $walker = new SubpagesNavigationPageList($using_menu);
+	        
+	        $output  = '<ul class="subpages-navi subpages-navi-shortcode';
+	        if($collapsible == 'true')
+	            $output .= ' subpages-navi-collapsible';
+	        if($exclusive == 'true')
+	            $output .= ' subpages-navi-exclusive';
+	        if($expand == 'true')
+	            $output .= ' subpages-navi-auto-expand';
+	        $output .= "\">\n";
+	        $output .= $walker->walk($pages, (int) $depth, array('current_level' => $post->ID));
+	        $output .= "</ul>\n";
+		}
 	    return $output;
     }
 /**
@@ -449,7 +478,7 @@ class SubpagesNavigationPageList extends Walker {
     
     function start_el(&$output, $page, $depth, $args) {
         extract($args);
-       
+		
         if($this->menu):
         	$title = esc_html($page->title);
         	$link = $page->url;
@@ -457,8 +486,6 @@ class SubpagesNavigationPageList extends Walker {
         	$title = esc_html($page->post_title);
         	$link  = get_permalink($page->ID);
         endif;
-        
-        
         
         $indent  = str_repeat("    ", $depth)."  ";
         $output .= $indent."<li class=\"subpages-navi-node subpages-navi-level-$depth";
@@ -526,31 +553,41 @@ class CLFSubpagesNavigationPageList extends Walker {
     function start_el(&$output, $page, $depth, $args) {
     	$end_div = false;
         extract($args);
-       
+		
         if($this->menu):
         	$title = esc_html($page->title);
         	$link = $page->url;
 			$current_id = $page->object_id;
-			
         else:
         	$title = esc_html($page->post_title);
         	$link  = get_permalink($page->ID);
 			$current_id = $page->ID;
         endif;
 		
+		// Prepare class if expand is set to true
+		$expand_parameter = ($this->expand)? ( ($current_level==$current_id)?" opened":""): "";
         
         $indent  = str_repeat("    ", $depth)."  ";
 		if ($has_children && $depth < 2) {
+			
+			// Set the right accordion group ID
 			if ($page->post_parent == 0)
 				$accordion_group = $this->main_parentID;
 			else {
 				$accordion_group = $page->post_parent;
 			}
-			// Set parent class, require for exclusivity an
+			
+			// Parent tag
+			$id_tag = "parent-";
+			if ($shortcode)
+				$id_tag = "scparent-";
+			
+			// Set parent class, require for exclusivity
 			if ($this->level > 1) {
 				if ($this->parentID == $page->post_parent) {
 					$output .= $indent."<!-- New Accordion ".$accordion_group." -->\n";
-					$output .= $indent."<div class='accordion' id='parent-".$accordion_group."'>";
+					
+					$output .= $indent."<div class='accordion' id='".$id_tag.$accordion_group."'>";
 					$this->parentID = $current_id;
 				}
 			}
@@ -558,17 +595,15 @@ class CLFSubpagesNavigationPageList extends Walker {
 				// Update parentID to reflect main parent
 				$this->parentID = $this->main_parentID;	
 			}
+			
 			$output .= $indent."<!-- Parent $current_id -->\n";
-		 	$output .= $indent."<div class='accordion-group'>\n";
+		 	$output .= $indent."<div class='accordion-group'>\n";			
+			$output .= $indent. "<div class='accordion-heading subpages-navi-node supages-navi-level-$depth".$expand_parameter."'>\n";
 			$this->level++ ;
 			
-			$output .= $indent. "<div class='accordion-heading subpages-navi-node supages-navi-level-$depth'>\n";
-			
 			// Set parameter for exclusivity option
-			if ($this->exclusive)
-				$exclusive_parameter = "data-parent='#parent-".$accordion_group."' ";
-			else
-				$exclusive_parameter = "";
+			$exclusive_parameter = ($this->exclusive)? "data-parent='#".$id_tag.$accordion_group."' ":"";
+			
 			$output .= $indent. "<a class='accordion-toggle' data-toggle='collapse' ".$exclusive_parameter."href='#accordion-".$current_id."'><div class='ubc7-arrow down-arrow'></div></a>\n";
 			
 			// Set new parent to current page
@@ -600,8 +635,8 @@ class CLFSubpagesNavigationPageList extends Walker {
 			$end_div = true;
 		}
         $output .= $indent. "<a ";
-        if (!empty($link_class))
-        	$output .= "class='".$link_class."' ";
+        if (!empty($link_class) || !empty($expand_parameter))
+        	$output .= "class='".$link_class.$expand_parameter."' ";
         $output .= "href='".$link."'>".$arrow.$title."</a>\n";
 		if ($end_div)
 			$output .= $indent. "</div>\n";
