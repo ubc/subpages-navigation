@@ -63,6 +63,9 @@ to your functions.php file it will not load the default css and js files.
 
 == Change log ==
 
+= 2.0 =
+* Added support for UBC Collab theme side navigation style
+
 = 1.2 = 
 * Added the ability to display custom nav menus
 * [subpages] shortcode now supports the auto-expand current level feature (expand='true') and menu parameter (menu='menu name') to display a custom menu

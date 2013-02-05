@@ -177,11 +177,11 @@ class OLT_Subpages_Navigation_Widget extends WP_Widget {
 		    		$depth = ($nested)? '3' : '-1';
 					
 					
-		    		
+		    		$unique_id = time()-10;
 		    		?>
 		    		
-		            <div class="<?php echo $classes; ?>" id="parent-<?php echo $post->ID; ?>">
-		                <?php echo $walker->walk($pages, $depth, array('current_level' => $post->ID, 'shorcode' => false)); ?>
+		            <div class="<?php echo $classes; ?>" id="parent-<?php echo $unique_id.$post->ID; ?>">
+		                <?php echo $walker->walk($pages, $depth, array('current_level' => $post->ID, 'unique_key' => $unique_id)); ?>
 		            </div>
 		            <?php
 				}
@@ -387,6 +387,7 @@ function subpages_navigation_shortcode($atts) {
 			}
     		
     		if($collapsible) {
+    			$nested = true;
     			$classes .= ' subpages-navi-collapsible';
 				$walker->set_collapsible(true);
 			}
@@ -396,10 +397,13 @@ function subpages_navigation_shortcode($atts) {
 				$walker->set_expand(true);
 			}
     		
+			// Check if table should be collapsible
     		$depth = ($nested)? '3' : '-1';
 			
-			$output = '<div class="'.$classes.'" id="scparent-'.$post->ID.'">';
-            $output .= $walker->walk($pages, $depth, array('current_level' => $post->ID, 'shortcode' => true));
+			$unique_key = time();
+			
+			$output = '<div class="'.$classes.'" id="parent-'.$uniquey_key.$post->ID.'">';
+            $output .= $walker->walk($pages, $depth, array('current_level' => $post->ID, 'unique_key' => $unique_key));
             $output .= "</div>\n";
 		} else { 
 	        $walker = new SubpagesNavigationPageList($using_menu);
@@ -524,7 +528,7 @@ class CLFSubpagesNavigationPageList extends Walker {
     //var $db_fields = array ('parent' => 'post_parent', 'id' => 'ID');
     var $db_fields = array ('parent' => 'post_parent', 'id' => 'ID');
     var $menu;
-	var $parentID, $main_parentID;
+	var $parentID, $main_parentID, $pre_parentID;
 	var $level = 1;
 	var $prev_level = 1;
 	var $exclusive = false;
@@ -540,17 +544,18 @@ class CLFSubpagesNavigationPageList extends Walker {
     		$this->db_fields['parent'] = 'menu_item_parent';
     	endif;
 		$this->parentID = $this->main_parentID = $parentID;
-    }
+    }	
     
     function start_lvl(&$output, $depth, $args) {
     	$in = "";
+		extract($args);
     	
         $indent  = str_repeat("    ", $depth+1);
         // Force open on parameter collapsible
         if (!$this->collapsible)
 			$in = " in";
 		
-        $output .= $indent."<div id='accordion-".$this->parentID."' class='accordion-body collapse".$in."'>\n";
+        $output .= $indent."<div id='accordion-".$unique_key.$this->parentID."' class='accordion-body collapse".$in."'>\n";
 		$output .= $indent."<div class='accordion-inner'>\n";
     }
     
@@ -589,15 +594,13 @@ class CLFSubpagesNavigationPageList extends Walker {
 			
 			// Parent tag
 			$id_tag = "parent-";
-			if ($shortcode)
-				$id_tag = "scparent-";
-			
+						
 			// Set parent class, require for exclusivity
 			if ($this->level > 1) {
 				if ($this->parentID == $page->post_parent) {
 					$output .= $indent."<!-- New Accordion ".$accordion_group." -->\n";
 					
-					$output .= $indent."<div class='accordion' id='".$id_tag.$accordion_group."'>";
+					$output .= $indent."<div class='accordion' id='".$id_tag.$unique_key.$accordion_group."'>";
 					$this->parentID = $current_id;
 				}
 			}
@@ -612,9 +615,9 @@ class CLFSubpagesNavigationPageList extends Walker {
 			$this->level++ ;
 			
 			// Set parameter for exclusivity option
-			$exclusive_parameter = ($this->exclusive)? "data-parent='#".$id_tag.$accordion_group."' ":"";
+			$exclusive_parameter = ($this->exclusive)? "data-parent='#".$id_tag.$unique_key.$accordion_group."' ":"";
 			
-			$output .= $indent. "<a class='accordion-toggle' data-toggle='collapse' ".$exclusive_parameter."href='#accordion-".$current_id."'><div class='ubc7-arrow down-arrow'></div></a>\n";
+			$output .= $indent. "<a class='accordion-toggle' data-toggle='collapse' ".$exclusive_parameter."href='#accordion-".$unique_key.$current_id."'><div class='ubc7-arrow down-arrow'></div></a>\n";
 			
 			// Set new parent to current page
 			if ($this->level > 1)
