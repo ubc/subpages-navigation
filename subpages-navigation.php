@@ -24,9 +24,11 @@ add_action( 'init', 'init_subpages_navigation_plugin' );
 
 
 define( 'SUBPAGES_NAVIGATION_DIR_PATH', plugin_dir_path( __FILE__ ) );
-define( 'SUBPAGES_NAVIGATION_BASENAME', plugin_basename( __FILE__ ) );
+//define( 'SUBPAGES_NAVIGATION_BASENAME', plugin_basename( __FILE__ ) );
+define( 'SUBPAGES_NAVIGATION_BASENAME', "/subpages-navigation/subpages-navigation.php" );
 define( 'SUBPAGES_NAVIGATION_BASE_FILE', __FILE__ );
 define( 'SUBPAGES_NAVIGATION_DIR_URL', plugins_url( '', SUBPAGES_NAVIGATION_BASENAME ) );
+ 
 /**
  * Register our widget.
  * 'olt_subpages_navigation_Widget' is the widget class used below.
@@ -176,8 +178,7 @@ class OLT_Subpages_Navigation_Widget extends WP_Widget {
 		    		
 		    		$depth = ($nested)? '3' : '-1';
 					
-					
-		    		$unique_id = time()-10;
+		    		$unique_id = $args['widget_id'];
 		    		?>
 		    		
 		            <div class="<?php echo $classes; ?>" id="parent-<?php echo $unique_id.$post->ID; ?>">
@@ -352,6 +353,7 @@ add_shortcode('subpages', 'subpages_navigation_shortcode');
  *********************************************/
 function subpages_navigation_shortcode($atts) {
         global $post;
+        
         $using_menu=false;
         extract(shortcode_atts(array(
 		    'depth' => '0',
@@ -400,9 +402,9 @@ function subpages_navigation_shortcode($atts) {
 			// Check if table should be collapsible
     		$depth = ($nested)? '3' : '-1';
 			
-			$unique_key = time();
+			$unique_key = mt_rand();
 			
-			$output = '<div class="'.$classes.'" id="parent-'.$uniquey_key.$post->ID.'">';
+			$output = '<div class="'.$classes.'" id="parent-'.$unique_key.$post->ID.'">';
             $output .= $walker->walk($pages, $depth, array('current_level' => $post->ID, 'unique_key' => $unique_key));
             $output .= "</div>\n";
 		} else { 
@@ -429,11 +431,17 @@ function subpages_navigation_shortcode($atts) {
  */ 
 function init_subpages_navigation_plugin()
 {
+    // Check if script needed
+    $theme_accordion_support = reset(get_theme_support('accordions'));
+    
  	if(!defined("SUBPAGE_NAVIGATION_STYLE"))
  		define("SUBPAGE_NAVIGATION_STYLE",true);
- 		
- 	if(!defined("SUBPAGE_NAVIGATION_SCRIPT"))
+ 		if ($theme_accordion_support)
+        
+ 	if($theme_accordion_support != "twitter-bootstrap" && !defined("SUBPAGE_NAVIGATION_SCRIPT"))
  		define("SUBPAGE_NAVIGATION_SCRIPT",true);
+    else
+        define("SUBPAGE_NAVIGATION_SCRIPT",false);
  	
 	 if (!is_admin()) {
 	 	if(SUBPAGE_NAVIGATION_SCRIPT)
