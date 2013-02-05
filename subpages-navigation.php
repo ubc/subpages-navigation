@@ -24,8 +24,7 @@ add_action( 'init', 'init_subpages_navigation_plugin' );
 
 
 define( 'SUBPAGES_NAVIGATION_DIR_PATH', plugin_dir_path( __FILE__ ) );
-//define( 'SUBPAGES_NAVIGATION_BASENAME', plugin_basename( __FILE__ ) );
-define( 'SUBPAGES_NAVIGATION_BASENAME', "/subpages-navigation/subpages-navigation.php" );
+define( 'SUBPAGES_NAVIGATION_BASENAME', plugin_basename( __FILE__ ) );
 define( 'SUBPAGES_NAVIGATION_BASE_FILE', __FILE__ );
 define( 'SUBPAGES_NAVIGATION_DIR_URL', plugins_url( '', SUBPAGES_NAVIGATION_BASENAME ) );
  
