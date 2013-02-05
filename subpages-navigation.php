@@ -436,14 +436,16 @@ function init_subpages_navigation_plugin()
  	if(!defined("SUBPAGE_NAVIGATION_STYLE"))
  		define("SUBPAGE_NAVIGATION_STYLE",true);
  		if ($theme_accordion_support)
-        
- 	if($theme_accordion_support != "twitter-bootstrap" && !defined("SUBPAGE_NAVIGATION_SCRIPT"))
+    
+    if ($theme_accordion_support == "twitter-bootstrap")
+        define("COLLAB_SCRIPT", true); 
+    elseif(!defined("SUBPAGE_NAVIGATION_SCRIPT"))
  		define("SUBPAGE_NAVIGATION_SCRIPT",true);
-    else
-        define("SUBPAGE_NAVIGATION_SCRIPT",false);
  	
-	 if (!is_admin()) {
-	 	if(SUBPAGE_NAVIGATION_SCRIPT)
+	if (!is_admin()) {
+        if (COLLAB_SCRIPT)
+            wp_enqueue_script('subpages-navigation', SUBPAGES_NAVIGATION_DIR_URL.'/subpages-navigation-ubc-collab.js', array('jquery'));                 
+        elseif(SUBPAGE_NAVIGATION_SCRIPT)
 			wp_enqueue_script('subpages-navigation', SUBPAGES_NAVIGATION_DIR_URL.'/subpages-navigation.js', array('jquery'));
 			
 		if(SUBPAGE_NAVIGATION_STYLE){
