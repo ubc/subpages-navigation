@@ -180,7 +180,7 @@ class OLT_Subpages_Navigation_Widget extends WP_Widget {
 		    		$unique_id = $args['widget_id'];
 		    		?>
 		    		
-		            <div class="<?php echo $classes; ?>" id="parent-<?php echo $unique_id.$post->ID; ?>">
+		            <div class="<?php echo $classes; ?>" id="parent-<?php echo $unique_id; ?>0">
 		                <?php echo $walker->walk($pages, $depth, array('current_level' => $post->ID, 'unique_key' => $unique_id)); ?>
 		            </div>
 		            <?php
@@ -403,7 +403,7 @@ function subpages_navigation_shortcode($atts) {
 			
 			$unique_key = mt_rand();
 			
-			$output = '<div class="'.$classes.'" id="parent-'.$unique_key.$post->ID.'">';
+			$output = '<div class="'.$classes.'" id="parent-'.$unique_key.'0">';
             $output .= $walker->walk($pages, $depth, array('current_level' => $post->ID, 'unique_key' => $unique_key));
             $output .= "</div>\n";
 		} else { 
@@ -552,7 +552,7 @@ class CLFSubpagesNavigationPageList extends Walker {
     		$this->menu=true;
     		$this->db_fields['parent'] = 'menu_item_parent';
     	endif;
-		$this->parentID = $this->main_parentID = $parentID;
+		$this->parentID = $this->main_parentID = 0;
     }	
     
     function start_lvl(&$output, $depth, $args) {
@@ -587,7 +587,7 @@ class CLFSubpagesNavigationPageList extends Walker {
         	$link  = get_permalink($page->ID);
 			$current_id = $page->ID;
         endif;
-		
+
 		// Prepare class if expand is set to true
 		$expand_parameter = ($this->expand)? ( ($current_level==$current_id)?" opened":""): "";
         
