@@ -556,8 +556,8 @@ class CLFSubpagesNavigationPageList extends Walker {
 		extract($args);
     	
         $indent  = str_repeat("    ", $depth+1);
-        // Force open on parameter collapsible
-        if (!$this->collapsible)
+        // Force open on parameter collapsible and open if parent is selected
+        if (!$this->collapsible || $this->parentID == $this->opened_parent)
 			$in = " in";
 		
         $output .= $indent."<div id='accordion-".$unique_key.$this->parentID."' class='accordion-body collapse".$in."'>\n";
@@ -585,7 +585,13 @@ class CLFSubpagesNavigationPageList extends Walker {
         endif;
 
 		// Prepare class if expand is set to true
-		$expand_parameter = ($this->expand)? ( ($current_level==$current_id)?" opened":""): "";
+		$expand_parameter = "";
+		if ($this->expand) {
+			if ($current_level==$current_id) {
+				$expand_parameter = " opened";
+				$this->opened_parent = $current_id;
+			}
+		}
         
         $indent  = str_repeat("    ", $depth)."  ";
 		if ($has_children && $depth < 2) {
