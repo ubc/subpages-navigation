@@ -591,6 +591,8 @@ class CLFSubpagesNavigationPageList extends Walker {
 				$expand_parameter = " opened";
 				$this->opened_parent = $current_id;
 			}
+		}elseif ($current_level == $current_id) {
+			$expand_parameter = " opened";
 		}
         
         $indent  = str_repeat("    ", $depth)."  ";
