@@ -356,13 +356,13 @@ function subpages_navigation_shortcode($atts) {
         $using_menu=false;
         extract(shortcode_atts(array(
 		    'depth' => '0',
-		    'siblings' => 'false',
-		    'collapsible' => 'true',
-		    'exclusive' => 'false',
-		    'expand' => 'false',
+		    'siblings' => false,
+		    'collapsible' => true,
+		    'exclusive' => false,
+		    'expand' => false,
 		    'menu' => '0',
 	    ), $atts));
-	    
+			    
 	    // Get all subpages of the current page
 	    $root = ($siblings == 'true')? $post->post_parent : $post->ID;
 	    if($menu):
@@ -381,19 +381,20 @@ function subpages_navigation_shortcode($atts) {
 			$walker = new CLFSubpagesNavigationPageList( $using_menu );
 			
 			$classes = 'accordion sidenav simple subpages-navi subpages-navi-widget';
-				
-    		if($exclusive) {  
+			
+			
+    		if ( (is_bool($exclusive) && $exclusive) || (is_string($exclusive) && strcasecmp($exclusive, "true") == 0) ){  
     			$classes .= ' subpages-navi-exclusive';
 				$walker->set_exclusive(true);
 			}
-    		
-    		if($collapsible) {
+			
+    		if ( (is_bool($collapsible) && $collapsible) || (is_string($collapsible) && strcasecmp($collapsible, "true") == 0) ) {
     			$nested = true;
     			$classes .= ' subpages-navi-collapsible';
 				$walker->set_collapsible(true);
 			}
     		
-    		if($expand) {
+    		if ( (is_bool($expand) && $expand) || (is_string($expand) && strcasecmp($expand, "true") == 0) ) {
     			$classes .= ' subpages-navi-auto-expand';
 				$walker->set_expand(true);
 			}
@@ -566,7 +567,8 @@ class CLFSubpagesNavigationPageList extends Walker {
     
     function end_lvl(&$output, $depth, $args) {
         $indent  = str_repeat("    ", $depth+1);
-        $output .= $indent."</div>\n</div>\n";
+		
+        $output .= $indent."</div><!-- end_inner -->\n</div><!-- end_body -->\n";
     }
     
     function start_el(&$output, $page, $depth, $args) {
@@ -578,6 +580,12 @@ class CLFSubpagesNavigationPageList extends Walker {
         	$title = esc_html($page->title);
         	$link = $page->url;
 			$current_id = $page->object_id;
+			if (!isset($this->current_id_list))
+				$this->current_id_list = array();
+			while (in_array($current_id, $this->current_id_list)) {
+				$current_id += rand(0, 100);
+			}
+			array_push($this->current_id_list, $current_id);
         else:
         	$title = esc_html($page->post_title);
         	$link  = get_permalink($page->ID);
@@ -595,23 +603,47 @@ class CLFSubpagesNavigationPageList extends Walker {
         
         $indent  = str_repeat("    ", $depth)."  ";
 		if ($has_children && $depth < 2) {
-			
-			// Set the right accordion group ID
-			if ($page->post_parent == 0)
-				$accordion_group = $this->main_parentID;
-			else {
-				$accordion_group = $page->post_parent;
+				
+			if ($this->level == 1)
+				$accordion_group = 0;
+			elseif (empty($this->last_entry) || ($this->level != $this->last_entry)) {
+				// NEW ID
+				$rand = rand(0,100);
+				if (!isset($this->rand_list)) {
+					$this->rand_list = array();
+				}
+				while (in_array($rand, $this->rand_list))
+					$rand = rand(0, 100);
+				
+				array_push($this->rand_list, $rand);
+	
+				$this->current_unique = $rand;
+				$this->last_entry = $this->level;
+				$accordion_group = $this->current_unique;
 			}
+			else
+				$accordion_group = $this->current_unique;
+			// Set the right accordion group ID
+			// if ($page->post_parent == 0)
+				// $accordion_group = $this->main_parentID;
+			// else {
+				// $accordion_group = $page->post_parent;
+			// }
+			
+			
 			
 			// Parent tag
 			$id_tag = "parent-";
 						
 			// Set parent class, require for exclusivity
 			if ($this->level > 1) {
-				if ($this->parentID == $page->post_parent) {
+				
+				//if ($this->parentID == $page->post_parent) {
+				if ($this->level != $this->prev_level) {
 					$output .= $indent."<!-- New Accordion ".$accordion_group." -->\n";
 					
 					$output .= $indent."<div class='accordion' id='".$id_tag.$unique_key.$accordion_group."'>";
+					
 					$this->parentID = $current_id;
 				}
 			}
@@ -628,7 +660,7 @@ class CLFSubpagesNavigationPageList extends Walker {
 			// Set parameter for exclusivity option
 			$exclusive_parameter = ($this->exclusive)? "data-parent='#".$id_tag.$unique_key.$accordion_group."' ":"";
 			
-			$output .= $indent. "<a class='accordion-toggle' data-toggle='collapse' ".$exclusive_parameter."href='#accordion-".$unique_key.$current_id."'><div class='ubc7-arrow down-arrow'></div></a>\n";
+			$output .= $indent."<a class='accordion-toggle' data-toggle='collapse' ".$exclusive_parameter."href='#accordion-".$unique_key.$current_id."'><div class='ubc7-arrow down-arrow'></div></a>\n";
 			
 			// Set new parent to current page
 			if ($this->level > 1)
@@ -654,33 +686,36 @@ class CLFSubpagesNavigationPageList extends Walker {
 		// endif;
 //         
         // $output .= "\">\n";
+        
         if ($this->level == 1) {
         	$output .= $indent. "<div class='single'>\n";	
 			$end_div = true;
 		}
+		
         $output .= $indent. "<a ";
         if (!empty($link_class) || !empty($expand_parameter))
         	$output .= "class='".$link_class.$expand_parameter."' ";
         $output .= "href='".$link."'>".$arrow.$title."</a>\n";
 		if ($end_div)
-			$output .= $indent. "</div>\n";
+			$output .= $indent. "</div>\n<!-- Close of single/Head -->";
         // $output .= $indent."  <a href=\"$link";
         // if ($lightbox == true)
             // $output .= "?iframe=true&amp;width=600&amp;height=400\" rel=\"prettyPhoto[iframes]";
         // $output .= "\">$title</a>\n";
 		
     }
-    
+   
     function end_el(&$output, $page, $depth, $args) {
         $indent  = str_repeat("    ", $depth)."  ";
         //$output .= $indent."</li>\n";
-        // Max depth of Three Levels
+        // Max depth of Three Levels;
+        
 		if ($args['has_children'] && $depth < 2) {
-			$output .= $indent."</div>\n";
+				$output .= $indent."</div>\n<!-- close level -->";
 			
 			$this->level--;
 
-			if ($this->prev_level > $this->level) {
+			if ($this->prev_level > $this->level ) {
 				$output .= $indent."</div>";
 				$output .= $indent. "<!-- close of accordion-group -->";
 			}
