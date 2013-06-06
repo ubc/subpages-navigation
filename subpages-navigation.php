@@ -434,18 +434,22 @@ function init_subpages_navigation_plugin()
 	$collab_script = false;
 	
     // Check if script needed
-    $theme_accordion_support = reset(get_theme_support('accordions'));
-    
-    if ($theme_accordion_support == "twitter-bootstrap")
+    if (is_array(get_theme_support('accordions'))) {
+    	$theme_accordion_support = reset(get_theme_support('accordions'));
+	}
+	
+    if ($theme_accordion_support == "twitter-bootstrap") {
         $collab_script = true; 
- 		
+	}
+	
 	if (!is_admin()) {
-        if ($collab_script) 
+        if ($collab_script) {
             wp_enqueue_script('subpages-navigation', SUBPAGES_NAVIGATION_DIR_URL.'/subpages-navigation-ubc-collab.js', array('jquery'));
-		else 
+		} else { 
 			wp_enqueue_script('subpages-navigation', SUBPAGES_NAVIGATION_DIR_URL.'/subpages-navigation.js', array('jquery'));
-		
-		if(SUBPAGE_NAVIGATION_STYLE){
+		}
+
+		if( SUBPAGE_NAVIGATION_STYLE){
 			if (file_exists(STYLESHEETPATH."/subpages-navigation.css") )
 			{
 				wp_enqueue_style('subpages-navigation', get_bloginfo('stylesheet_directory').'/subpages-navigation.css');
@@ -558,7 +562,7 @@ class CLFSubpagesNavigationPageList extends Walker {
     	
         $indent  = str_repeat("    ", $depth+1);
         // Force open on parameter collapsible and open if parent is selected
-        if (!$this->collapsible || $this->parentID == $this->opened_parent)
+        if (!$this->collapsible || (isset($this->opened_parent) && ($this->parentID == $this->opened_parent)) )
 			$in = " in";
 		
         $output .= $indent."<div id='accordion-".$unique_key.$this->parentID."' class='accordion-body collapse".$in."'>\n";
@@ -580,8 +584,9 @@ class CLFSubpagesNavigationPageList extends Walker {
         	$title = esc_html($page->title);
         	$link = $page->url;
 			$current_id = $page->object_id;
-			if (!isset($this->current_id_list))
+			if (!isset($this->current_id_list)) {
 				$this->current_id_list = array();
+			}
 			while (in_array($current_id, $this->current_id_list)) {
 				$current_id += rand(0, 100);
 			}
@@ -604,16 +609,17 @@ class CLFSubpagesNavigationPageList extends Walker {
         $indent  = str_repeat("    ", $depth)."  ";
 		if ($has_children && $depth < 2) {
 				
-			if ($this->level == 1)
+			if ($this->level == 1) {
 				$accordion_group = 0;
-			elseif (empty($this->last_entry) || ($this->level != $this->last_entry)) {
+			} elseif (empty($this->last_entry) || ($this->level != $this->last_entry)) {
 				// NEW ID
 				$rand = rand(0,100);
 				if (!isset($this->rand_list)) {
 					$this->rand_list = array();
 				}
-				while (in_array($rand, $this->rand_list))
+				while (in_array($rand, $this->rand_list)) {
 					$rand = rand(0, 100);
+				}
 				
 				array_push($this->rand_list, $rand);
 	
@@ -621,8 +627,9 @@ class CLFSubpagesNavigationPageList extends Walker {
 				$this->last_entry = $this->level;
 				$accordion_group = $this->current_unique;
 			}
-			else
+			else {
 				$accordion_group = $this->current_unique;
+			}
 			// Set the right accordion group ID
 			// if ($page->post_parent == 0)
 				// $accordion_group = $this->main_parentID;
@@ -663,8 +670,9 @@ class CLFSubpagesNavigationPageList extends Walker {
 			$output .= $indent."<a class='accordion-toggle' data-toggle='collapse' ".$exclusive_parameter."href='#accordion-".$unique_key.$current_id."'><div class='ubc7-arrow down-arrow'></div></a>\n";
 			
 			// Set new parent to current page
-			if ($this->level > 1)
+			if ($this->level > 1) {
 				$this->parentID = $current_id;
+			}
 			
 			$arrow = "";
 			$link_class = "link";
@@ -693,11 +701,13 @@ class CLFSubpagesNavigationPageList extends Walker {
 		}
 		
         $output .= $indent. "<a ";
-        if (!empty($link_class) || !empty($expand_parameter))
+        if (!empty($link_class) || !empty($expand_parameter)) {
         	$output .= "class='".$link_class.$expand_parameter."' ";
+		}
         $output .= "href='".$link."'>".$arrow.$title."</a>\n";
-		if ($end_div)
+		if ($end_div) {
 			$output .= $indent. "</div>\n<!-- Close of single/Head -->";
+		}
         // $output .= $indent."  <a href=\"$link";
         // if ($lightbox == true)
             // $output .= "?iframe=true&amp;width=600&amp;height=400\" rel=\"prettyPhoto[iframes]";

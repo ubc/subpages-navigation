@@ -50,9 +50,6 @@ ul.subpages-navi,.subpages-navi ul{list-style:none!important}ul.subpages-navi-wi
 .sidenav .accordion-heading {
 	height: auto !important;
 }
-.sidenav.accordion:empty{
-	display: none;
-}
 
 .accordion .accordion {
 	border: 0px;
