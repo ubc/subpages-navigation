@@ -12,14 +12,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-//if(!defined("SUBPAGE_NAVIGATION_STYLE"))
-//	define("SUBPAGE_NAVIGATION_STYLE",true);
+
 /**
  * Add function to widgets_init that'll load our widget.
  * @since 1.0
  */
 add_action( 'widgets_init', 'olt_subpages_navigation_load_widgets' );
-//if(SUBPAGE_NAVIGATION_STYLE)
 add_action( 'init', 'init_subpages_navigation_plugin' );
 
 
@@ -210,6 +208,8 @@ class OLT_Subpages_Navigation_Widget extends WP_Widget {
 				}
 				/* After widget (defined by themes). */
 				echo $after_widget;
+				
+				 wp_enqueue_script( 'subpages-navigation' );
 			endif;
 				
 		endif;
@@ -353,6 +353,8 @@ add_shortcode('subpages', 'subpages_navigation_shortcode');
 function subpages_navigation_shortcode($atts) {
         global $post;
         
+        wp_enqueue_script( 'subpages-navigation' );
+        
         $using_menu=false;
         extract(shortcode_atts(array(
 		    'depth' => '0',
@@ -444,12 +446,12 @@ function init_subpages_navigation_plugin()
 	
 	if (!is_admin()) {
         if ($collab_script) {
-            wp_enqueue_script('subpages-navigation', SUBPAGES_NAVIGATION_DIR_URL.'/subpages-navigation-ubc-collab.js', array('jquery'));
+            wp_register_script('subpages-navigation', SUBPAGES_NAVIGATION_DIR_URL.'/subpages-navigation-ubc-collab.js', array('jquery'), 1, true );
 		} else { 
-			wp_enqueue_script('subpages-navigation', SUBPAGES_NAVIGATION_DIR_URL.'/subpages-navigation.js', array('jquery'));
+			wp_register_script('subpages-navigation', SUBPAGES_NAVIGATION_DIR_URL.'/subpages-navigation.js', array('jquery'), 1, true );
 		}
 
-		if( SUBPAGE_NAVIGATION_STYLE){
+		if( defined('SUBPAGE_NAVIGATION_STYLE') && SUBPAGE_NAVIGATION_STYLE ){
 			if (file_exists(STYLESHEETPATH."/subpages-navigation.css") )
 			{
 				wp_enqueue_style('subpages-navigation', get_bloginfo('stylesheet_directory').'/subpages-navigation.css');
