@@ -64,6 +64,7 @@ class OLT_Subpages_Navigation_Widget extends WP_Widget {
 	 */
 	function widget( $args, $instance ) {
 		global $post;
+		$using_menu = false;
 		
 		if(is_page()):
 			/* Extract the arguments  */	
