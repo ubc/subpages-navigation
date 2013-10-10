@@ -151,7 +151,10 @@ class OLT_Subpages_Navigation_Widget extends WP_Widget {
 					echo $after_title;
 				}
 				
-				$theme_accordion_support = reset(get_theme_support('accordions'));
+				$theme_accordion_support = '';
+				if (is_array(get_theme_support('accordions'))) {
+					$theme_accordion_support = reset(get_theme_support('accordions'));
+				}
 				
 				// UBC CLF style side navigation
 				if ( $theme_accordion_support == 'twitter-bootstrap' ) {
