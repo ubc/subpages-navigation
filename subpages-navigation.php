@@ -429,6 +429,147 @@ function subpages_navigation_shortcode($atts) {
 		}
 	    return $output;
     }
+add_shortcode('subpages-next', 'subpages_navigation_next_shortcode');
+/**
+ * Subpages next shortcode displays the next and previous links of the siblings childpages.
+ * 
+ * @param  array $atts Array of attributes that are passed into the shortcode.
+ * @return string      html
+ */
+function subpages_navigation_next_shortcode( $atts ) {
+	
+	if( !is_page() )
+		return;
+
+	global $post;
+	
+	extract( shortcode_atts( array(
+		'exclude' => '',
+	), $atts ) );
+
+	
+	if( $post->post_parent ) {
+		$current_id = $post->ID;
+		$args = array(
+			'post_parent'  => $post->post_parent,
+			'post_type' => array( 'page' ),
+			//Order & Orderby Parameters
+			'order'               => 'ASC',
+			'orderby'             => 'menu_order',
+		);
+
+			if( !empty($exclude) )
+				$args['post__not_in'] = explode( ',', $exclude );
+			
+		
+		$query_subpages = new WP_Query( $args );
+		$counter = 0;
+
+		while ( $query_subpages->have_posts() ) : $query_subpages->the_post();
+   			
+			$subpages_data[] = array(
+				'id' 		=> get_the_id(),
+				'permalink'	=> get_permalink(),
+				'title'		=> get_the_title( ),
+				''
+			);
+			if( $current_id == get_the_id() )
+   				$current_counter = $counter;
+   			
+   			$counter++;
+
+  		endwhile;
+  		wp_reset_postdata();
+		$previous_link = $next_link = false;
+  		
+  		if( isset( $current_counter ) ) {
+  			if( isset( $subpages_data[$current_counter - 1 ]  ) ) {
+  				$link = $subpages_data[$current_counter - 1 ];
+  				$previous_link = '<a rel="prev" href="'. esc_url( $link['permalink'] ) .'"><i class="icon-chevron-left icon"></i> '.$link['title'].'</a>';
+  			}
+
+  			if( isset( $subpages_data[$current_counter + 1 ]  ) ) {
+  				$link = $subpages_data[$current_counter + 1 ];
+  				$next_link = '<a rel="next" href="'. esc_url( $link['permalink'] ) .'">'.$link['title'].' <i class="icon-chevron-right icon"></i></a>';
+  			}
+
+  		}
+
+  		if( $previous_link || $next_link ) {
+  			$html = '<ul class="pager">';
+  			if( $previous_link )
+  				$html .= '<li class="previous">'.$previous_link.'</li>';
+  			if( $next_link )
+  				$html .= '<li class="next">'.$next_link.'</li>';
+  			$html .= '</ul>';
+  		}
+  		
+		return $html;
+	}
+
+	return ;
+
+}
+add_shortcode('subpages-progress', 'subpages_navigation_progressbar_shortcode');
+/**
+ * Subpages progressbar shortcode displays the next and previous links of the siblings childpages.
+ * 
+ * @param  array $atts Array of attributes that are passed into the shortcode.
+ * @return string      html
+ */
+function subpages_navigation_progressbar_shortcode( $atts ) {
+	
+	if( !is_page() )
+		return;
+
+	global $post;
+	
+	extract( shortcode_atts( array(
+		'exclude' => '',
+		'type'	  => ''
+	), $atts ) );
+
+	if( !empty( $type ) )
+		$type = 'progress-'.$type;
+
+	if( $post->post_parent ) {
+		$current_id = $post->ID;
+		$args = array(
+			'post_parent'  => $post->post_parent,
+			'post_type' => array( 'page' ),
+			'order'               => 'ASC',
+			'orderby'             => 'menu_order',
+		);
+
+			if( !empty($exclude) )
+				$args['post__not_in'] = explode( ',', $exclude );
+			
+		
+		$query_subpages = new WP_Query( $args );
+		$counter = 0;
+
+		while ( $query_subpages->have_posts() ) : $query_subpages->the_post();
+   			$counter++;
+   			if( $current_id == get_the_id() )
+   				$current_counter = $counter;
+   			
+   			
+
+  		endwhile;
+  		wp_reset_postdata();
+		
+		if( isset( $current_counter ) ) {
+  			$progress = $current_counter / $counter * 100;
+  			$html = '<div class="progress '.esc_attr( $type ).'"><div class="bar" style="width: '.$progress.'%"></div></div>';
+				
+  		}
+
+		return $html;
+	}
+
+	return ;
+
+}
 /**
  * init_subpages_navigation_plugin function.
  * 
