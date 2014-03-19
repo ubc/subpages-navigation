@@ -526,8 +526,20 @@ function subpages_navigation_progressbar_shortcode( $atts ) {
 	
 	extract( shortcode_atts( array(
 		'exclude' => '',
-		'type'	  => ''
+		'type'	  => '',
 	), $atts ) );
+
+	$in_array = array();
+
+	if( is_array($atts) ) {
+		foreach( $atts as $key => $attr_value ) {
+			if( is_numeric( $key ) )
+				$in_array[] = $attr_value;
+		}
+	}
+
+
+		$collapsed  	= in_array( 'collapsed', $in_array   ) ? true : false;
 
 	if( !empty( $type ) )
 		$type = 'progress-'.$type;
@@ -560,7 +572,14 @@ function subpages_navigation_progressbar_shortcode( $atts ) {
 		
 		if( isset( $current_counter ) ) {
   			$progress = $current_counter / $counter * 100;
-  			$html = '<div class="progress '.esc_attr( $type ).'"><div class="bar" style="width: '.$progress.'%"></div></div>';
+  			$counter_text = $inner_text = '';
+  			
+  			if( 100 != $progress && in_array( 'include_text', $in_array ) )
+  				$counter_text = '&nbsp;'.$current_counter.' / '.$counter;
+  			else if( in_array( 'include_text' , $in_array ) )
+  				$inner_text = '&nbsp;'.$current_counter.' / '.$counter;
+
+  			$html = '<div class="progress '.esc_attr( $type ).'"><div class="bar" style="width: '.$progress.'%">'.$inner_text.'</div>'.$counter_text.'</div>';
 				
   		}
 
