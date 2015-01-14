@@ -153,7 +153,8 @@ class OLT_Subpages_Navigation_Widget extends WP_Widget {
 				
 				$theme_accordion_support = '';
 				if (is_array(get_theme_support('accordions'))) {
-					$theme_accordion_support = reset(get_theme_support('accordions'));
+					$theme_accordion_support = get_theme_support( 'accordions' );
+					$theme_accordion_support = reset( $theme_accordion_support );
 				}
 				
 				// UBC CLF style side navigation
@@ -601,7 +602,8 @@ function init_subpages_navigation_plugin()
 	
     // Check if script needed
     if (is_array(get_theme_support('accordions'))) {
-    	$theme_accordion_support = reset(get_theme_support('accordions'));
+    	$theme_accordtion_support = get_theme_support('accordions');
+    	$theme_accordion_support = reset($theme_accordtion_support);
 	}
 	
     if ($theme_accordion_support == "twitter-bootstrap") {
@@ -651,18 +653,18 @@ class SubpagesNavigationPageList extends Walker {
     	endif;
     }
     
-    function start_lvl(&$output, $depth, $args) {
+    public function start_lvl(&$output, $depth = 0, $args=array()) {
    
         $indent  = str_repeat("    ", $depth+1);
         $output .= $indent."<ul class='children'>\n";
     }
     
-    function end_lvl(&$output, $depth, $args) {
+    function end_lvl( &$output, $depth = 0, $args = array() ) {
         $indent  = str_repeat("    ", $depth+1);
         $output .= $indent."</ul>\n";
     }
     
-    function start_el(&$output, $page, $depth, $args) {
+    function start_el(&$output, $page, $depth = 0, $args = array(), $current_object_id = 0) {
         extract($args);
 		
         if($this->menu):
@@ -692,7 +694,7 @@ class SubpagesNavigationPageList extends Walker {
         $output .= "\">$title</a>\n";
     }
     
-    function end_el(&$output, $page, $depth, $args) {
+    function end_el(&$output, $pages, $depth = 0, $args = array()) {
         $indent  = str_repeat("    ", $depth)."  ";
         $output .= $indent."</li>\n";
     }
@@ -722,7 +724,7 @@ class CLFSubpagesNavigationPageList extends Walker {
 		$this->parentID = $this->main_parentID = 0;
     }	
     
-    function start_lvl(&$output, $depth, $args) {
+    function start_lvl(&$output, $depth = 0, $args = array()) {
     	$in = "";
 		extract($args);
     	
@@ -735,13 +737,13 @@ class CLFSubpagesNavigationPageList extends Walker {
 		$output .= $indent."<div class='accordion-inner'>\n";
     }
     
-    function end_lvl(&$output, $depth, $args) {
+    function end_lvl(&$output, $depth = 0, $args = array()) {
         $indent  = str_repeat("    ", $depth+1);
 		
         $output .= $indent."</div><!-- end_inner -->\n</div><!-- end_body -->\n";
     }
     
-    function start_el(&$output, $page, $depth, $args) {
+    function start_el(&$output, $page, $depth = 0, $args = array(), $current_object_id = 0) {
     	$end_div = false;
     	
         extract($args);
@@ -881,7 +883,7 @@ class CLFSubpagesNavigationPageList extends Walker {
 		
     }
    
-    function end_el(&$output, $page, $depth, $args) {
+    function end_el(&$output, $page, $depth = 0, $args = array()) {
         $indent  = str_repeat("    ", $depth)."  ";
         //$output .= $indent."</li>\n";
         // Max depth of Three Levels;
