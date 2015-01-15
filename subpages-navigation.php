@@ -381,7 +381,8 @@ function subpages_navigation_shortcode($atts) {
 	    endif;
 	   
 	    // Prepare the walker
-	    $theme_accordion_support = reset(get_theme_support('accordions'));
+	    $theme_accordion_support = get_theme_support( 'accordions' );
+	    $theme_accordion_support = reset( $theme_accordion_support );
 				
 		// UBC CLF style side navigation
 		if ( $theme_accordion_support == 'twitter-bootstrap' ) {
