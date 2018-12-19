@@ -56,7 +56,7 @@ class OLT_Subpages_Navigation_Widget extends WP_Widget {
 		$control_ops = array( 'width' => 400, 'height' => 350, 'id_base' => 'olt-subpages-navigation-widget' );
 
 		/* Create the widget. */
-		$this->WP_Widget( 'olt-subpages-navigation-widget', __('Subpages Navigation', 'olt_subpages_navigation'), $widget_ops, $control_ops );
+		WP_Widget::__construct( 'olt-subpages-navigation-widget', __('Subpages Navigation', 'olt_subpages_navigation'), $widget_ops, $control_ops );
 	}
 
 	/**
@@ -599,15 +599,16 @@ function subpages_navigation_progressbar_shortcode( $atts ) {
  */
 function init_subpages_navigation_plugin()
 {
-	$collab_script = false;
+	$collab_script           = false;
+	$theme_accordion_support = false;
 
     // Check if script needed
-    if (is_array(get_theme_support('accordions'))) {
-    	$theme_accordtion_support = get_theme_support('accordions');
-    	$theme_accordion_support = reset($theme_accordtion_support);
+    if ( is_array( get_theme_support( 'accordions' ) ) ) {
+    	$theme_accordtion_support = get_theme_support( 'accordions' );
+    	$theme_accordion_support  = reset( $theme_accordtion_support );
 	}
 
-    if ($theme_accordion_support == "twitter-bootstrap") {
+    if ( $theme_accordion_support === "twitter-bootstrap" ) {
         $collab_script = true;
 	}
 
