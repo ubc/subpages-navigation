@@ -749,8 +749,7 @@ class CLFSubpagesNavigationPageList extends Walker {
 
     function start_el(&$output, $page, $depth = 0, $args = array(), $current_object_id = 0) {
     	$end_div = false;
-
-        extract($args);
+		extract($args);
 
         if($this->menu):
         	$title = esc_html($page->title);
@@ -771,6 +770,7 @@ class CLFSubpagesNavigationPageList extends Walker {
 
 		// Prepare class if expand is set to true
 		$expand_parameter = "";
+
 		if ($this->expand) {
 			if ($current_level==$current_id) {
 				$expand_parameter = " opened";
@@ -838,8 +838,12 @@ class CLFSubpagesNavigationPageList extends Walker {
 
 			// Set parameter for exclusivity option
 			$exclusive_parameter = ($this->exclusive)? "data-parent='#".$id_tag.$unique_key.$accordion_group."' ":"";
-
-			$output .= $indent."<a class='accordion-toggle' data-toggle='collapse' ".$exclusive_parameter."href='#accordion-".$unique_key.$current_id."' role='button' aria-haspopup='true' aria-expanded='false'  aria-label='expand " . esc_attr( $title ) . " menu'><div class='ubc7-arrow down-arrow' aria-hidden='true'></div></a>\n";
+	
+			if ( $this->expand ) {
+				$output .= $indent."<a class='accordion-toggle' data-toggle='collapse' ".$exclusive_parameter."href='#accordion-".$unique_key.$current_id."' role='button' aria-haspopup='true' aria-expanded='true'  aria-label='expand " . esc_attr( $title ) . " menu'><div class='ubc7-arrow down-arrow' aria-hidden='true'></div></a>\n";
+			} else {
+				$output .= $indent."<a class='accordion-toggle' data-toggle='collapse' ".$exclusive_parameter."href='#accordion-".$unique_key.$current_id."' role='button' aria-haspopup='true' aria-expanded='false'  aria-label='expand " . esc_attr( $title ) . " menu'><div class='ubc7-arrow down-arrow' aria-hidden='true'></div></a>\n";
+			}
 
 			// Set new parent to current page
 			if ($this->level > 1) {
