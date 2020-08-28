@@ -619,6 +619,8 @@ function init_subpages_navigation_plugin()
 			wp_register_script('subpages-navigation', SUBPAGES_NAVIGATION_DIR_URL.'/subpages-navigation.js', array('jquery'), 1, true );
 		}
 
+		wp_enqueue_style('subpages-navigation-base', SUBPAGES_NAVIGATION_DIR_URL.'/subpage-navigation-base.css');
+
 		if( defined('SUBPAGE_NAVIGATION_STYLE') && SUBPAGE_NAVIGATION_STYLE ){
 			if (file_exists(STYLESHEETPATH."/subpages-navigation.css") )
 			{
@@ -837,7 +839,7 @@ class CLFSubpagesNavigationPageList extends Walker {
 			// Set parameter for exclusivity option
 			$exclusive_parameter = ($this->exclusive)? "data-parent='#".$id_tag.$unique_key.$accordion_group."' ":"";
 
-			$output .= $indent."<a class='accordion-toggle' data-toggle='collapse' ".$exclusive_parameter."href='#accordion-".$unique_key.$current_id."'><div class='ubc7-arrow down-arrow'></div></a>\n";
+			$output .= $indent."<a class='accordion-toggle' data-toggle='collapse' ".$exclusive_parameter."href='#accordion-".$unique_key.$current_id."' role='button' aria-haspopup='true' aria-expanded='false'  aria-label='expand " . $title . " menu'><div class='ubc7-arrow down-arrow' aria-hidden='true'></div></a>\n";
 
 			// Set new parent to current page
 			if ($this->level > 1) {
