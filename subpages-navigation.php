@@ -839,7 +839,7 @@ class CLFSubpagesNavigationPageList extends Walker {
 			// Set parameter for exclusivity option
 			$exclusive_parameter = ($this->exclusive)? "data-parent='#".$id_tag.$unique_key.$accordion_group."' ":"";
 
-			$output .= $indent."<a class='accordion-toggle' data-toggle='collapse' ".$exclusive_parameter."href='#accordion-".$unique_key.$current_id."' role='button' aria-haspopup='true' aria-expanded='false'  aria-label='expand " . $title . " menu'><div class='ubc7-arrow down-arrow' aria-hidden='true'></div></a>\n";
+			$output .= $indent."<a class='accordion-toggle' data-toggle='collapse' ".$exclusive_parameter."href='#accordion-".$unique_key.$current_id."' role='button' aria-haspopup='true' aria-expanded='false'  aria-label='expand " . esc_attr( $title ) . " menu'><div class='ubc7-arrow down-arrow' aria-hidden='true'></div></a>\n";
 
 			// Set new parent to current page
 			if ($this->level > 1) {
