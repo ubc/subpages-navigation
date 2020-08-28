@@ -729,8 +729,7 @@ class CLFSubpagesNavigationPageList extends Walker {
     }
 
     function start_lvl(&$output, $depth = 0, $args = array()) {
-		$in = "";
-		
+    	$in = "";
 		extract($args);
 
         $indent  = str_repeat("    ", $depth+1);
@@ -750,7 +749,6 @@ class CLFSubpagesNavigationPageList extends Walker {
 
     function start_el(&$output, $page, $depth = 0, $args = array(), $current_object_id = 0) {
     	$end_div = false;
-
 		extract($args);
 
         if($this->menu):
