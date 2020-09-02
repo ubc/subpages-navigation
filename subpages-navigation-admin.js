@@ -1,5 +1,5 @@
 jQuery(document).ready(function($){
-    $('.olt-subpages-top-title').live('click',function(){
+    $('.olt-subpages-top-title').on('click',function(){
         var widget = $(this).parents('.widget-content:first');
         if($(this).attr('checked'))
             $('.olt-subpages-title', widget).attr('disabled','disabled').css('background-color','#ccc');
@@ -7,7 +7,7 @@ jQuery(document).ready(function($){
             $('.olt-subpages-title', widget).removeAttr('disabled').css('background-color','#fff');
     });
     
-    $('.olt-subpages-root').live('change',function(){
+    $('.olt-subpages-root').on('change',function(){
         var widget = $(this).parents('.widget-content:first');
         
         if($(this).val() != -1){
@@ -17,7 +17,7 @@ jQuery(document).ready(function($){
         }
     });
     
-    $('.olt-subpages-nested').live('click',function(){
+    $('.olt-subpages-nested').on('click',function(){
         var widget = $(this).parents('.widget-content:first');
         if($(this).attr('checked'))
             $('.olt-subpages-nested-options', widget).removeAttr('disabled').css('color','#000');
