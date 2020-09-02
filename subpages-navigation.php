@@ -3,7 +3,7 @@
  * Plugin Name: Subpages Navigation
  * Plugin URI: http://ctlt.ubc.ca
  * Description: Create subpages navigation menu with sidebar widgets and shortcodes.
- * Version: 2.0.1
+ * Version: 2.1.0
  * Author: Michael Kam / Enej Bajgoric / Michael Ha / CTLT
  * Author URI: http://blogs.ubc.ca/
  *
@@ -638,7 +638,7 @@ function init_subpages_navigation_plugin()
 
 add_action("admin_print_scripts-widgets.php","subpages_navigation_plugin_admin");
 function subpages_navigation_plugin_admin(){
-	wp_enqueue_script('subpages-navigation-admin', SUBPAGES_NAVIGATION_DIR_URL.'/subpages-navigation-admin.js' ,array('jquery'));
+	wp_enqueue_script('subpages-navigation-admin', SUBPAGES_NAVIGATION_DIR_URL.'/subpages-navigation-admin.js' ,array('jquery'), '2.1.0' );
 
 }
 
