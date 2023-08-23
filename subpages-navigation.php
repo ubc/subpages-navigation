@@ -382,6 +382,7 @@ function subpages_navigation_shortcode($atts) {
 
 	    // Prepare the walker
 	    $theme_accordion_support = get_theme_support( 'accordions' );
+	    $theme_accordion_support = (array) $theme_accordion_support;
 	    $theme_accordion_support = reset( $theme_accordion_support );
 
 		// UBC CLF style side navigation
